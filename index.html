@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>장애물을 피해 코인 30개를 얻으시오!</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      font-family: 'Arial', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    
+    h1 {
+      color: white;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+      margin-bottom: 20px;
+      font-size: 2.5em;
+    }
+    
+    .game-container {
+      position: relative;
+      width: 800px;
+      height: 400px;
+      background: linear-gradient(to bottom, #87CEEB 0%, #98FB98 100%);
+      border: 3px solid #333;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      transition: background 0.5s ease;
+    }
+    
+    /* 캐릭터별 배경 */
+    .game-container.character-default {
+      background: linear-gradient(to bottom, #87CEEB 0%, #98FB98 100%);
+    }
+    
+    .game-container.character-cool {
+      background: linear-gradient(to bottom, #FF6B6B 0%, #4ECDC4 100%);
+    }
+    
+    .game-container.character-robot {
+      background: linear-gradient(to bottom, #2C3E50 0%, #34495E 100%);
+    }
+    
+    .game-container.character-cat {
+      background: linear-gradient(to bottom, #FFB6C1 0%, #FFC0CB 100%);
+    }
+    
+    .game-container.character-dog {
+      background: linear-gradient(to bottom, #8B4513 0%, #D2691E 100%);
+    }
+    
+    .game-container.character-unicorn {
+      background: linear-gradient(to bottom, #E6E6FA 0%, #DDA0DD 100%);
+    }
+    
+    .player {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      background: #FF6B6B;
+      border-radius: 50%;
+      bottom: 44px;
+      left: 50px;
+    }
+    
+    .player::before {
+      content: var(--player-emoji, '😀');
+      position: absolute;
+      top: -5px;
+      left: -5px;
+      font-size: 40px;
+    }
+    
+    .obstacle {
+      position: absolute;
+      width: 20px;
+      height: 60px;
+      background: #8B4513;
+      bottom: 30px;
+      border-radius: 5px 5px 0 0;
+      z-index: 1;
+    }
+    
+    .coin {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: #FFD700;
+      border-radius: 50%;
+      animation: coinSpin 0.5s linear infinite;
+      z-index: 1;
+    }
+    
+    /* 캐릭터별 장애물 */
+    .obstacle.obstacle-default::before {
+      content: '🌵';
+      position: absolute;
+      top: -10px;
+      left: -5px;
+      font-size: 30px;
+    }
+    
+    .obstacle.obstacle-cool::before {
+      content: '🔥';
+      position: absolute;
+      top: -10px;
+      left: -5px;
+      font-size: 30px;
+    }
+    
+    .obstacle.obstacle-robot::before {
+      content: '⚡';
+      position: absolute;
+      top: -10px;
+      left: -5px;
+      font-size: 30px;
+    }
+    
+    .obstacle.obstacle-cat::before {
+      content: '🚛';
+      position: absolute;
+      top: -10px;
+      left: -5px;
+      font-size: 30px;
+    }
+    
+    .obstacle.obstacle-dog::before {
+      content: '🚗';
+      position: absolute;
+      top: -10px;
+      left: -5px;
+      font-size: 30px;
+    }
+    
+    .obstacle.obstacle-unicorn::before {
+      content: '🌿';
+      position: absolute;
+      top: -10px;
+      left: -5px;
+      font-size: 30px;
+    }
+    
+    /* 캐릭터별 코인 */
+    .coin.coin-default::before {
+      content: '💰';
+      position: absolute;
+      top: -5px;
+      left: -5px;
+      font-size: 30px;
+    }
+    
+    .coin.coin-cool::before {
+      content: '💎';
+      position: absolute;
+      top: -5px;
+      left: -5px;
+      font-size: 30px;
+    }
+    
+    .coin.coin-robot::before {
+      content: '⚙️';
+      position: absolute;
+      top: -5px;
+      left: -5px;
+      font-size: 30px;
+    }
+    
+    .coin.coin-cat::before {
+      content: '🐟';
+      position: absolute;
+      top: -5px;
+      left: -5px;
+      font-size: 30px;
+    }
+    
+    .coin.coin-dog::before {
+      content: '🦴';
+      position: absolute;
+      top: -5px;
+      left: -5px;
+      font-size: 30px;
+    }
+    
+    .coin.coin-unicorn::before {
+      content: '✨';
+      position: absolute;
+      top: -5px;
+      left: -5px;
+      font-size: 30px;
+    }
+    
+    @keyframes coinSpin {
+      0% { transform: rotateY(0deg); }
+      100% { transform: rotateY(360deg); }
+    }
+    
+    .cloud {
+      position: absolute;
+      background: white;
+      border-radius: 50%;
+      opacity: 0.7;
+    }
+    
+    .cloud1 {
+      width: 60px;
+      height: 30px;
+      top: 30px;
+      animation-duration: 20s;
+    }
+    
+    .cloud2 {
+      width: 40px;
+      height: 20px;
+      top: 80px;
+      animation-duration: 15s;
+    }
+    
+    .cloud3 {
+      width: 50px;
+      height: 25px;
+      top: 120px;
+      left: 650px;
+      animation-duration: 25s;
+    }
+    
+    @keyframes cloudMove {
+      from { left: -100px; }
+      to { left: 900px; }
+    }
+    
+    .ui {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    }
+    
+    .game-over {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0,0,0,0.8);
+      color: white;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      display: none;
+      z-index: 1000;
+    }
+    
+    .game-win {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0,255,0,0.8);
+      color: white;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      display: none;
+      z-index: 1000;
+    }
+    
+    .controls {
+      margin-top: 20px;
+      text-align: center;
+      color: white;
+    }
+    
+    .btn {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      margin: 5px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background 0.3s;
+    }
+    
+    .btn:hover {
+      background: #45a049;
+    }
+    
+    .btn:disabled {
+      background: #cccccc;
+      cursor: not-allowed;
+    }
+    
+    .character-select {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0,0,0,0.9);
+      color: white;
+      padding: 30px;
+      border-radius: 15px;
+      text-align: center;
+      z-index: 1000;
+      min-width: 400px;
+    }
+    
+    .character-options {
+      display: flex;
+      justify-content: space-around;
+      margin: 20px 0;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    
+    .character-option {
+      padding: 15px;
+      border: 2px solid #4CAF50;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s;
+      background: rgba(255,255,255,0.1);
+    }
+    
+    .character-option:hover {
+      background: rgba(76,175,80,0.3);
+      transform: scale(1.05);
+    }
+    
+    .character-option.selected {
+      background: #4CAF50;
+      border-color: #45a049;
+    }
+    
+    .character-option span {
+      font-size: 3em;
+      display: block;
+      margin-bottom: 5px;
+    }
+    
+    .character-option .name {
+      font-size: 0.9em;
+      font-weight: bold;
+    }
+    
+    .character-info {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 10px;
+      padding: 15px;
+      margin: 15px 0;
+      border: 2px solid #4CAF50;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    .character-info h4 {
+      margin: 0 0 10px 0;
+      color: #333;
+      font-size: 18px;
+      text-align: center;
+    }
+    
+    .character-info p {
+      margin: 8px 0;
+      color: #555;
+      font-size: 14px;
+    }
+    
+    .character-info strong {
+      color: #4CAF50;
+    }
+    
+    .reset-btn {
+      background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+      border: 2px solid #c44569;
+      color: white;
+      font-weight: bold;
+      transition: all 0.3s ease;
+    }
+    
+    .reset-btn:hover {
+      background: linear-gradient(45deg, #ee5a24, #ff6b6b);
+      transform: scale(1.05);
+      box-shadow: 0 5px 15px rgba(238, 90, 36, 0.4);
+    }
+    
+    .reset-btn:active {
+      transform: scale(0.95);
+    }
+    
+    .ground {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      height: 30px;
+      background: rgba(139, 69, 19, 0.5); /* SaddleBrown with 50% opacity */
+    }
+  </style>
+</head>
+<body>
+  <h1>장애물을 피해 코인 30개를 얻으시오!</h1>
+  
+  <div class="game-container">
+    <div class="ui">
+      <div>점수: <span id="score">0</span></div>
+      <div>코인: <span id="coins">0</span></div>
+      <div>거리: <span id="distance">0</span>m</div>
+    </div>
+    
+    <div class="player" id="player"></div>
+    
+    <div class="ground"></div>
+    
+    <div class="cloud cloud1"></div>
+    <div class="cloud cloud2"></div>
+    <div class="cloud cloud3"></div>
+    
+    <div class="game-over" id="gameOver">
+      <h2>게임 오버!</h2>
+      <p>최종 점수: <span id="finalScore">0</span></p>
+      <p>수집한 코인: <span id="finalCoins">0</span></p>
+      <p>이동 거리: <span id="finalDistance">0</span>m</p>
+      <button class="btn" onclick="restartGame()">다시 시작</button>
+    </div>
+    
+    <div class="game-win" id="gameWin">
+      <h2>🎉 게임 승리! 🎉</h2>
+      <p>축하합니다! 코인 30개를 모두 수집했습니다!</p>
+      <p>최종 점수: <span id="winScore">0</span></p>
+      <p>수집한 코인: <span id="winCoins">0</span></p>
+      <p>이동 거리: <span id="winDistance">0</span>m</p>
+      <button class="btn" onclick="restartGame()">다시 시작</button>
+    </div>
+  </div>
+  
+  <div class="controls">
+    <p>🎮 조작법: 스페이스바 또는 화살표 위쪽 키로 점프!</p>
+    <button class="btn" onclick="startGame()" id="startBtn">게임 시작</button>
+    <button class="btn" onclick="pauseGame()" id="pauseBtn" disabled>일시정지</button>
+    <button class="btn reset-btn" onclick="resetGame()" id="resetBtn">🔄 게임 초기화</button>
+  </div>
+
+  <div class="character-select" id="characterSelect">
+    <h3>캐릭터를 선택하세요!</h3>
+    <div class="character-options">
+      <div class="character-option" onclick="selectCharacter('😀')">😀</div>
+      <div class="character-option" onclick="selectCharacter('😎')">😎</div>
+      <div class="character-option" onclick="selectCharacter('🤖')">🤖</div>
+      <div class="character-option" onclick="selectCharacter('🐱')">🐱</div>
+      <div class="character-option" onclick="selectCharacter('🐶')">🐶</div>
+      <div class="character-option" onclick="selectCharacter('🦄')">🦄</div>
+    </div>
+    <div class="character-info" id="characterInfo" style="display: none;">
+      <h4 id="characterName"></h4>
+      <p><strong>장애물:</strong> <span id="obstacleInfo"></span></p>
+      <p><strong>코인:</strong> <span id="coinInfo"></span></p>
+    </div>
+    <button id="confirmBtn" onclick="confirmCharacter()" disabled>확인</button>
+  </div>
+
+  <script>
+    const player = document.getElementById('player');
+    const gameContainer = document.querySelector('.game-container');
+    const scoreElement = document.getElementById('score');
+    const coinsElement = document.getElementById('coins');
+    const distanceElement = document.getElementById('distance');
+    const gameOverElement = document.getElementById('gameOver');
+    const gameWinElement = document.getElementById('gameWin');
+    const characterSelectElement = document.getElementById('characterSelect');
+    const startBtn = document.getElementById('startBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    
+    let selectedCharacter = '😀';
+    let currentCharacter = '😀';
+    let gameRunning = false;
+    let gamePaused = false;
+    let score = 0;
+    let coins = 0;
+    let distance = 0;
+    let playerY = 44;
+    let isJumping = false;
+    let jumpTimer = 0;
+    let jumpCount = 0;
+    let maxJumps = 2;
+    let gameSpeed = 3;
+    let obstacles = [];
+    let coinList = [];
+    let animationId;
+    
+    // 효과음 재생 함수
+    function playCoinSound() {
+      // Web Audio API를 사용한 효과음 생성
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+      oscillator.frequency.exponentialRampToValueAtTime(1200, audioContext.currentTime + 0.1);
+      
+      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+      
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 0.1);
+    }
+    
+    // 게임 시작
+    function startGame() {
+      if (!gameRunning) {
+        gameRunning = true;
+        gamePaused = false;
+        startBtn.disabled = true;
+        pauseBtn.disabled = false;
+        resetBtn.disabled = false;
+        
+        // 선택된 캐릭터를 플레이어에 적용
+        if (selectedCharacter) {
+          player.style.setProperty('--player-emoji', `"${selectedCharacter}"`);
+          currentCharacter = selectedCharacter;
+        }
+        
+        // 기본 장애물과 코인 클래스 설정
+        if (!window.currentObstacleClass) {
+          window.currentObstacleClass = 'obstacle-default';
+        }
+        if (!window.currentCoinClass) {
+          window.currentCoinClass = 'coin-default';
+        }
+        
+        gameLoop();
+      }
+    }
+    
+    // 게임 일시정지
+    function pauseGame() {
+      if (!gameRunning) return;
+      
+      gamePaused = !gamePaused;
+      pauseBtn.textContent = gamePaused ? '계속하기' : '일시정지';
+      
+      if (!gamePaused) {
+        gameLoop();
+      }
+    }
+    
+    // 게임 재시작
+    function restartGame() {
+      // 모든 장애물과 코인 제거
+      obstacles.forEach(obstacle => obstacle.remove());
+      coinList.forEach(coin => coin.remove());
+      obstacles = [];
+      coinList = [];
+      
+      // 플레이어 위치 초기화 - 바닥에 고정
+      player.style.bottom = '44px';
+      playerY = 44;
+      isJumping = false;
+      jumpTimer = 0;
+      jumpCount = 0;
+      
+      // 게임 상태 초기화
+      score = 0;
+      coins = 0;
+      distance = 0;
+      gameSpeed = 3;
+      
+      // UI 초기화
+      scoreElement.textContent = score;
+      coinsElement.textContent = coins;
+      distanceElement.textContent = distance;
+      gameOverElement.style.display = 'none';
+      gameWinElement.style.display = 'none';
+      
+      // 캐릭터 선택 화면 표시
+      characterSelectElement.style.display = 'block';
+      document.getElementById('confirmBtn').disabled = true;
+      
+      // 버튼 상태 초기화
+      startBtn.style.display = 'inline-block';
+      pauseBtn.style.display = 'inline-block';
+      startBtn.disabled = false;
+      pauseBtn.disabled = true;
+      pauseBtn.textContent = '일시정지';
+    }
+    
+    // 점프
+    function jump() {
+      if (jumpCount < maxJumps && gameRunning && !gamePaused) {
+        isJumping = true;
+        jumpTimer = 18; // 약 0.3초 (18프레임)
+        jumpCount++;
+      }
+    }
+    
+    // 게임 루프
+    function gameLoop() {
+      if (!gameRunning || gamePaused) return;
+      
+      // 플레이어 점프/낙하 시스템
+      if (isJumping) {
+        jumpTimer--;
+        playerY += 5; // 점프 중 위로 이동
+        
+        if (jumpTimer <= 0) {
+          isJumping = false;
+        }
+      } else if (playerY > 44) {
+        playerY -= 8; // 중력으로 아래로 이동
+      }
+      
+      // 바닥 충돌 체크
+      if (playerY <= 44) {
+        playerY = 44;
+        jumpCount = 0; // 바닥에 닿으면 점프 카운트 리셋
+      }
+      
+      // 플레이어 위치 업데이트
+      player.style.bottom = playerY + 'px';
+      
+      // 장애물 생성
+      if (Math.random() < 0.008) {
+        createObstacle();
+      }
+      
+      // 코인 생성
+      if (Math.random() < 0.01) {
+        createCoin();
+      }
+      
+      // 장애물 이동
+      obstacles.forEach((obstacle, index) => {
+        const obstacleX = parseFloat(obstacle.style.left) - gameSpeed;
+        obstacle.style.left = obstacleX + 'px';
+        
+        // 화면 밖으로 나간 장애물 제거
+        if (obstacleX < -50) {
+          obstacle.remove();
+          obstacles.splice(index, 1);
+          score += 10;
+        }
+        
+        // 충돌 감지
+        if (checkCollision(player, obstacle)) {
+          gameOver();
+          return;
+        }
+      });
+      
+      // 코인 이동 및 충돌 감지
+      coinList.forEach((coin, index) => {
+        const coinX = parseFloat(coin.style.left) - gameSpeed;
+        coin.style.left = coinX + 'px';
+        
+        // 화면 밖으로 나간 코인 제거
+        if (coinX < -50) {
+          coin.remove();
+          coinList.splice(index, 1);
+        }
+        
+        // 코인 수집
+        if (checkCollision(player, coin)) {
+          coin.remove();
+          coinList.splice(index, 1);
+          coins++;
+          score += 50;
+          coinsElement.textContent = coins;
+          
+          // 효과음 재생
+          playCoinSound();
+          
+          // 승리 조건 확인 (코인 30개 수집)
+          if (coins >= 30) {
+            gameWin();
+            return;
+          }
+        }
+      });
+      
+      // 거리 및 점수 업데이트
+      distance += gameSpeed / 10;
+      score += 1;
+      
+      scoreElement.textContent = score;
+      distanceElement.textContent = Math.floor(distance);
+      
+      // 게임 속도 증가 (더 천천히)
+      if (distance % 200 < gameSpeed) {
+        gameSpeed += 0.05;
+      }
+      
+      animationId = requestAnimationFrame(gameLoop);
+    }
+    
+    // 장애물 생성
+    function createObstacle() {
+      const obstacle = document.createElement('div');
+      obstacle.className = 'obstacle ' + window.currentObstacleClass;
+      obstacle.style.left = '800px';
+      obstacle.style.height = (20 + Math.random() * 30) + 'px';
+      gameContainer.appendChild(obstacle);
+      obstacles.push(obstacle);
+    }
+    
+    // 코인 생성
+    function createCoin() {
+      const coin = document.createElement('div');
+      coin.className = 'coin ' + window.currentCoinClass;
+      coin.style.left = '800px';
+      coin.style.bottom = (60 + Math.random() * 100) + 'px';
+      gameContainer.appendChild(coin);
+      coinList.push(coin);
+    }
+    
+    // 충돌 감지
+    function checkCollision(player, element) {
+      const playerRect = player.getBoundingClientRect();
+      const elementRect = element.getBoundingClientRect();
+      
+      return !(playerRect.right < elementRect.left || 
+               playerRect.left > elementRect.right || 
+               playerRect.bottom < elementRect.top || 
+               playerRect.top > elementRect.bottom);
+    }
+    
+    // 게임 오버
+    function gameOver() {
+      gameRunning = false;
+      cancelAnimationFrame(animationId);
+      
+      document.getElementById('finalScore').textContent = score;
+      document.getElementById('finalCoins').textContent = coins;
+      document.getElementById('finalDistance').textContent = Math.floor(distance);
+      
+      gameOverElement.style.display = 'block';
+      startBtn.style.display = 'none';
+      pauseBtn.style.display = 'none';
+      resetBtn.style.display = 'none';
+    }
+    
+    // 게임 승리
+    function gameWin() {
+      gameRunning = false;
+      cancelAnimationFrame(animationId);
+      
+      document.getElementById('winScore').textContent = score;
+      document.getElementById('winCoins').textContent = coins;
+      document.getElementById('winDistance').textContent = Math.floor(distance);
+      
+      gameWinElement.style.display = 'block';
+      startBtn.style.display = 'none';
+      pauseBtn.style.display = 'none';
+      resetBtn.style.display = 'none';
+    }
+    
+    // 키보드 이벤트
+    document.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' || e.code === 'ArrowUp' || e.key === ' ' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        jump();
+      }
+    });
+    
+    // 터치/클릭 이벤트 (모바일 지원)
+    gameContainer.addEventListener('click', jump);
+    gameContainer.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      jump();
+    });
+    
+    // 캐릭터 선택 이벤트 설정
+    document.querySelectorAll('.character-option').forEach(option => {
+      option.addEventListener('click', function() {
+        // 이전 선택 해제
+        document.querySelectorAll('.character-option').forEach(opt => {
+          opt.classList.remove('selected');
+        });
+        
+        // 현재 선택 표시
+        this.classList.add('selected');
+        
+        // 선택된 캐릭터 저장
+        selectedCharacter = this.textContent;
+        
+        // 배경 변경
+        changeBackground(selectedCharacter);
+        
+        // 캐릭터 정보 표시
+        showCharacterInfo(selectedCharacter);
+        
+        // 게임 시작 버튼 활성화
+        document.getElementById('confirmBtn').disabled = false;
+      });
+    });
+    
+    // 캐릭터 정보 표시
+    function showCharacterInfo(character) {
+      const characterInfo = document.getElementById('characterInfo');
+      const characterName = document.getElementById('characterName');
+      const obstacleInfo = document.getElementById('obstacleInfo');
+      const coinInfo = document.getElementById('coinInfo');
+      
+      let name, obstacle, coin;
+      
+      switch(character) {
+        case '😀':
+          name = '기본 캐릭터';
+          obstacle = '🌵 선인장 - 사막에서 자라는 가시가 있는 식물';
+          coin = '💰 돈주머니 - 귀중한 보물';
+          break;
+        case '😎':
+          name = '쿨한 캐릭터';
+          obstacle = '🔥 불 - 뜨거운 화염으로 조심해야 함';
+          coin = '💎 다이아몬드 - 가장 귀중한 보석';
+          break;
+        case '🤖':
+          name = '로봇 캐릭터';
+          obstacle = '⚡ 번개 - 전기 에너지가 위험함';
+          coin = '⚙️ 톱니바퀴 - 기계 부품';
+          break;
+        case '🐱':
+          name = '고양이 캐릭터';
+          obstacle = '🚛 트럭 - 큰 화물차량';
+          coin = '🐟 물고기 - 고양이가 좋아하는 먹이';
+          break;
+        case '🐶':
+          name = '강아지 캐릭터';
+          obstacle = '🚗 자동차 - 도로에서 달리는 차량';
+          coin = '🦴 뼈다귀 - 강아지의 보물';
+          break;
+        case '🦄':
+          name = '유니콘 캐릭터';
+          obstacle = '🌿 덩쿨 - 숲에서 자라는 식물';
+          coin = '✨ 반짝임 - 마법의 빛';
+          break;
+        default:
+          name = '알 수 없는 캐릭터';
+          obstacle = '알 수 없는 장애물';
+          coin = '알 수 없는 코인';
+      }
+      
+      characterName.textContent = name;
+      obstacleInfo.textContent = obstacle;
+      coinInfo.textContent = coin;
+      
+      characterInfo.style.display = 'block';
+    }
+    
+    // 캐릭터 확인 및 게임 시작
+    function confirmCharacter() {
+      characterSelectElement.style.display = 'none';
+      startGame();
+    }
+    
+    // 게임 초기화
+    function resetGame() {
+      // 확인 메시지 표시
+      if (!confirm('정말로 게임을 초기화하시겠습니까?\n\n모든 진행 상황이 사라집니다.')) {
+        return;
+      }
+      
+      // 게임 상태 완전 중지
+      gameRunning = false;
+      gamePaused = false;
+      
+      // 애니메이션 프레임 취소
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+        animationId = null;
+      }
+      
+      // 모든 장애물과 코인 제거
+      document.querySelectorAll('.obstacle, .coin').forEach(element => {
+        element.remove();
+      });
+      obstacles = [];
+      coinList = [];
+      
+      // 플레이어 위치 완전 초기화
+      player.style.bottom = '44px';
+      playerY = 44;
+      isJumping = false;
+      jumpTimer = 0;
+      jumpCount = 0;
+      
+      // 게임 상태 완전 초기화
+      score = 0;
+      coins = 0;
+      distance = 0;
+      gameSpeed = 3;
+      
+      // UI 완전 초기화
+      scoreElement.textContent = '0';
+      coinsElement.textContent = '0';
+      distanceElement.textContent = '0';
+      
+      // 게임 오버/승리 화면 숨기기
+      if (gameOverElement) gameOverElement.style.display = 'none';
+      if (gameWinElement) gameWinElement.style.display = 'none';
+      
+      // 캐릭터 선택 화면 표시
+      characterSelectElement.style.display = 'block';
+      
+      // 캐릭터 정보 숨기기
+      const characterInfo = document.getElementById('characterInfo');
+      if (characterInfo) characterInfo.style.display = 'none';
+      
+      // 버튼 상태 완전 초기화
+      startBtn.style.display = 'inline-block';
+      pauseBtn.style.display = 'inline-block';
+      resetBtn.style.display = 'inline-block';
+      
+      startBtn.disabled = false;
+      pauseBtn.disabled = true;
+      resetBtn.disabled = false;
+      
+      pauseBtn.textContent = '일시정지';
+      
+      // 캐릭터 선택 초기화
+      document.querySelectorAll('.character-option').forEach(opt => {
+        opt.classList.remove('selected');
+      });
+      
+      // 캐릭터 기본값으로 초기화
+      selectedCharacter = '😀';
+      currentCharacter = '😀';
+      player.style.setProperty('--player-emoji', '"😀"');
+      
+      // 기본 배경으로 초기화
+      changeBackground('😀');
+      
+      // 확인 버튼 비활성화
+      const confirmBtn = document.getElementById('confirmBtn');
+      if (confirmBtn) confirmBtn.disabled = true;
+      
+      // 성공 메시지 표시
+      alert('게임이 성공적으로 초기화되었습니다! 🎮\n\n캐릭터를 다시 선택하고 게임을 시작하세요.');
+    }
+    
+    // 배경 변경 함수
+    function changeBackground(character) {
+      const gameContainer = document.querySelector('.game-container');
+      
+      // 모든 배경 클래스 제거
+      gameContainer.classList.remove('character-default', 'character-cool', 'character-robot', 'character-cat', 'character-dog', 'character-unicorn');
+      
+      // 캐릭터에 맞는 배경 클래스 추가
+      switch(character) {
+        case '😀':
+          gameContainer.classList.add('character-default');
+          break;
+        case '😎':
+          gameContainer.classList.add('character-cool');
+          break;
+        case '🤖':
+          gameContainer.classList.add('character-robot');
+          break;
+        case '🐱':
+          gameContainer.classList.add('character-cat');
+          break;
+        case '🐶':
+          gameContainer.classList.add('character-dog');
+          break;
+        case '🦄':
+          gameContainer.classList.add('character-unicorn');
+          break;
+        default:
+          gameContainer.classList.add('character-default');
+      }
+      
+      // 장애물과 코인 클래스도 업데이트
+      updateObstacleAndCoinClasses(character);
+    }
+    
+    // 장애물과 코인 클래스 업데이트 함수
+    function updateObstacleAndCoinClasses(character) {
+      let obstacleClass = 'obstacle-default';
+      let coinClass = 'coin-default';
+      
+      switch(character) {
+        case '😀':
+          obstacleClass = 'obstacle-default';
+          coinClass = 'coin-default';
+          break;
+        case '😎':
+          obstacleClass = 'obstacle-cool';
+          coinClass = 'coin-cool';
+          break;
+        case '🤖':
+          obstacleClass = 'obstacle-robot';
+          coinClass = 'coin-robot';
+          break;
+        case '🐱':
+          obstacleClass = 'obstacle-cat';
+          coinClass = 'coin-cat';
+          break;
+        case '🐶':
+          obstacleClass = 'obstacle-dog';
+          coinClass = 'coin-dog';
+          break;
+        case '🦄':
+          obstacleClass = 'obstacle-unicorn';
+          coinClass = 'coin-unicorn';
+          break;
+      }
+      
+      // 전역 변수로 저장하여 생성 시 사용
+      window.currentObstacleClass = obstacleClass;
+      window.currentCoinClass = coinClass;
+    }
+    
+    // 점수 업데이트
+    function updateScore() {
+      scoreElement.textContent = score;
+    }
+    
+    // 코인 업데이트
+    function updateCoins() {
+      coinsElement.textContent = coins;
+    }
+  </script>
+</body>
+</html> 
+
+
+
