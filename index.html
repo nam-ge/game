@@ -516,6 +516,50 @@
       oscillator.stop(audioContext.currentTime + 0.1);
     }
     
+    // 게임 승리 효과음 재생 함수 (빠방~!)
+    function playWinSound() {
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const now = audioContext.currentTime;
+      const gainNode = audioContext.createGain();
+      gainNode.connect(audioContext.destination);
+      gainNode.gain.setValueAtTime(0.4, now);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.8);
+
+      // '도-미-솔-도' 멜로디로 축하 느낌을 줍니다.
+      const freqs = [261.63, 329.63, 392.00, 523.25];
+      
+      freqs.forEach((freq, i) => {
+        const oscillator = audioContext.createOscillator();
+        oscillator.connect(gainNode);
+        oscillator.type = 'triangle'; // 부드러운 게임 사운드
+        oscillator.frequency.setValueAtTime(freq, now + i * 0.12);
+        oscillator.start(now + i * 0.12);
+        oscillator.stop(now + i * 0.12 + 0.15);
+      });
+    }
+    
+    // 게임 오버 효과음 재생 함수 (띠리리딩~)
+    function playGameOverSound() {
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const now = audioContext.currentTime;
+      const gainNode = audioContext.createGain();
+      gainNode.connect(audioContext.destination);
+      gainNode.gain.setValueAtTime(0.3, now);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, now + 1.0);
+
+      // 하강하는 멜로디로 아쉬운 느낌을 줍니다.
+      const freqs = [392.00, 329.63, 261.63, 220.00];
+      
+      freqs.forEach((freq, i) => {
+        const oscillator = audioContext.createOscillator();
+        oscillator.connect(gainNode);
+        oscillator.type = 'sine'; // 부드러운 소리
+        oscillator.frequency.setValueAtTime(freq, now + i * 0.15);
+        oscillator.start(now + i * 0.15);
+        oscillator.stop(now + i * 0.15 + 0.2);
+      });
+    }
+    
     // 게임 시작
     function startGame() {
       if (!gameRunning) {
@@ -698,6 +742,7 @@
     function gameOver() {
       gameRunning = false;
       cancelAnimationFrame(animationId);
+      playGameOverSound();
       
       document.getElementById('finalScore').textContent = score;
       document.getElementById('finalCoins').textContent = coins;
@@ -713,6 +758,7 @@
     function gameWin() {
       gameRunning = false;
       cancelAnimationFrame(animationId);
+      playWinSound();
       
       document.getElementById('winScore').textContent = score;
       document.getElementById('winCoins').textContent = coins;
