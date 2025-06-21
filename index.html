@@ -428,7 +428,7 @@
       <p>최종 점수: <span id="finalScore">0</span></p>
       <p>수집한 코인: <span id="finalCoins">0</span></p>
       <p>이동 거리: <span id="finalDistance">0</span>m</p>
-      <button class="btn" onclick="restartGame()">다시 시작</button>
+      <button class="btn" onclick="resetGame()">다시 시작</button>
     </div>
     
     <div class="game-win" id="gameWin">
@@ -437,7 +437,7 @@
       <p>최종 점수: <span id="winScore">0</span></p>
       <p>수집한 코인: <span id="winCoins">0</span></p>
       <p>이동 거리: <span id="winDistance">0</span>m</p>
-      <button class="btn" onclick="restartGame()">다시 시작</button>
+      <button class="btn" onclick="resetGame()">다시 시작</button>
     </div>
   </div>
   
@@ -553,46 +553,6 @@
       if (!gamePaused) {
         gameLoop();
       }
-    }
-    
-    // 게임 재시작
-    function restartGame() {
-      // 모든 장애물과 코인 제거
-      obstacles.forEach(obstacle => obstacle.remove());
-      coinList.forEach(coin => coin.remove());
-      obstacles = [];
-      coinList = [];
-      
-      // 플레이어 위치 초기화 - 바닥에 고정
-      player.style.bottom = '44px';
-      playerY = 44;
-      isJumping = false;
-      jumpTimer = 0;
-      jumpCount = 0;
-      
-      // 게임 상태 초기화
-      score = 0;
-      coins = 0;
-      distance = 0;
-      gameSpeed = 3;
-      
-      // UI 초기화
-      scoreElement.textContent = score;
-      coinsElement.textContent = coins;
-      distanceElement.textContent = distance;
-      gameOverElement.style.display = 'none';
-      gameWinElement.style.display = 'none';
-      
-      // 캐릭터 선택 화면 표시
-      characterSelectElement.style.display = 'block';
-      document.getElementById('confirmBtn').disabled = true;
-      
-      // 버튼 상태 초기화
-      startBtn.style.display = 'inline-block';
-      pauseBtn.style.display = 'inline-block';
-      startBtn.disabled = false;
-      pauseBtn.disabled = true;
-      pauseBtn.textContent = '일시정지';
     }
     
     // 점프
