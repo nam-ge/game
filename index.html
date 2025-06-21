@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>장애물을 피해 코인 30개를 얻으시오!</title>
+  <title>장애물을 피해 코인 15개를 얻으시오!</title>
   <style>
     body {
       margin: 0;
@@ -406,7 +406,7 @@
   </style>
 </head>
 <body>
-  <h1>장애물을 피해 코인 30개를 얻으시오!</h1>
+  <h1>장애물을 피해 코인 15개를 얻으시오!</h1>
   
   <div class="game-container">
     <div class="ui">
@@ -433,7 +433,7 @@
     
     <div class="game-win" id="gameWin">
       <h2>🎉 게임 승리! 🎉</h2>
-      <p>축하합니다! 코인 30개를 모두 수집했습니다!</p>
+      <p>축하합니다! 코인 15개를 모두 수집했습니다!</p>
       <p>최종 점수: <span id="winScore">0</span></p>
       <p>수집한 코인: <span id="winCoins">0</span></p>
       <p>이동 거리: <span id="winDistance">0</span>m</p>
@@ -640,8 +640,8 @@
           // 효과음 재생
           playCoinSound();
           
-          // 승리 조건 확인 (코인 30개 수집)
-          if (coins >= 30) {
+          // 승리 조건 확인 (코인 15개 수집)
+          if (coins >= 15) {
             gameWin();
             return;
           }
