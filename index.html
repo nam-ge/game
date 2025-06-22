@@ -78,6 +78,11 @@
       font-size: 40px;
     }
     
+    /* 유니콘 캐릭터 좌우 반전 */
+    .player.unicorn-flipped::before {
+      transform: scaleX(-1);
+    }
+    
     .obstacle {
       position: absolute;
       width: 20px;
@@ -845,6 +850,13 @@
         // 선택된 캐릭터 저장
         selectedCharacter = this.textContent;
         
+        // 유니콘 캐릭터 좌우 반전 처리
+        if (selectedCharacter === '🦄') {
+          player.classList.add('unicorn-flipped');
+        } else {
+          player.classList.remove('unicorn-flipped');
+        }
+        
         // 배경 변경
         changeBackground(selectedCharacter);
         
@@ -988,6 +1000,9 @@
       selectedCharacter = '😀';
       currentCharacter = '😀';
       player.style.setProperty('--player-emoji', '"😀"');
+      
+      // 유니콘 반전 클래스 제거
+      player.classList.remove('unicorn-flipped');
       
       // 기본 배경으로 초기화
       changeBackground('😀');
