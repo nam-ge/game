@@ -840,8 +840,10 @@
     // 터치/클릭 이벤트 (모바일 지원)
     gameContainer.addEventListener('click', jump);
     gameContainer.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-      jump();
+      if (e.target === gameContainer) {
+        e.preventDefault();
+        jump();
+      }
     });
     
     // 캐릭터 선택 이벤트 설정
