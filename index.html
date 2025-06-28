@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>장애물을 피해 코인 15개를 얻으시오!</title>
+  <title>장애물을 피해 코인을 모으시오!</title>
   <style>
     body {
       margin: 0;
@@ -444,18 +444,71 @@
       bottom: 0;
       width: 100%;
       height: 30px;
-      background: rgba(139, 69, 19, 0.5); /* SaddleBrown with 50% opacity */
+      background: rgba(139, 69, 19, 0.5);
+    }
+    
+    /* 레벨 선택 화면 */
+    .level-select {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0,0,0,0.9);
+      color: white;
+      padding: 30px;
+      border-radius: 15px;
+      text-align: center;
+      z-index: 1000;
+      min-width: 400px;
+    }
+    
+    .level-options {
+      display: flex;
+      justify-content: space-around;
+      margin: 20px 0;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+    
+    .level-option {
+      padding: 20px;
+      border: 2px solid #4CAF50;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s;
+      background: rgba(255,255,255,0.1);
+      min-width: 120px;
+    }
+    
+    .level-option:hover {
+      background: rgba(76,175,80,0.3);
+      transform: scale(1.05);
+    }
+    
+    .level-option.selected {
+      background: #4CAF50;
+      border-color: #45a049;
+    }
+    
+    .level-option .level-number {
+      font-size: 2em;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    
+    .level-option .level-desc {
+      font-size: 0.9em;
+      line-height: 1.4;
     }
   </style>
 </head>
 <body>
-  <h1>장애물을 피해 코인 15개를 얻으시오!</h1>
+  <h1>장애물을 피해 코인을 모으시오!</h1>
   
   <div class="game-container">
     <div class="ui">
-      <div>점수: <span id="score">0</span></div>
-      <div>코인: <span id="coins">0</span></div>
-      <div>거리: <span id="distance">0</span>m</div>
+      <div>레벨: <span id="currentLevel">1</span></div>
+      <div>코인: <span id="coins">0</span> / <span id="targetCoins">15</span></div>
     </div>
     
     <div class="player" id="player"></div>
@@ -468,18 +521,14 @@
     
     <div class="game-over" id="gameOver">
       <h2>게임 오버!</h2>
-      <p>최종 점수: <span id="finalScore">0</span></p>
       <p>수집한 코인: <span id="finalCoins">0</span></p>
-      <p>이동 거리: <span id="finalDistance">0</span>m</p>
       <button class="btn" onclick="resetGame()">🔄 다시 시작하기</button>
     </div>
     
     <div class="game-win" id="gameWin">
       <h2>🎉 게임 승리! 🎉</h2>
-      <p>축하합니다! 코인 15개를 모두 수집했습니다!</p>
-      <p>최종 점수: <span id="winScore">0</span></p>
+      <p>축하합니다! 코인을 모두 수집했습니다!</p>
       <p>수집한 코인: <span id="winCoins">0</span></p>
-      <p>이동 거리: <span id="winDistance">0</span>m</p>
       <button class="btn" onclick="resetGame()">🔄 다시 시작하기</button>
     </div>
   </div>
@@ -491,7 +540,37 @@
     <button class="btn reset-btn" onclick="resetGame()" id="resetBtn">🔄 게임 초기화</button>
   </div>
 
-  <div class="character-select" id="characterSelect">
+  <!-- 레벨 선택 화면 -->
+  <div class="level-select" id="levelSelect">
+    <h3>레벨을 선택하세요!</h3>
+    <div class="level-options">
+      <div class="level-option" onclick="selectLevel(1)">
+        <div class="level-number">1단계</div>
+        <div class="level-desc">
+          <p>기본 속도</p>
+          <p>코인 15개 수집</p>
+        </div>
+      </div>
+      <div class="level-option" onclick="selectLevel(2)">
+        <div class="level-number">2단계</div>
+        <div class="level-desc">
+          <p>빠른 속도</p>
+          <p>코인 15개 수집</p>
+        </div>
+      </div>
+      <div class="level-option" onclick="selectLevel(3)">
+        <div class="level-number">3단계</div>
+        <div class="level-desc">
+          <p>중간 속도</p>
+          <p>코인 30개 수집</p>
+        </div>
+      </div>
+    </div>
+    <button id="levelConfirmBtn" onclick="confirmLevel()" disabled>확인</button>
+  </div>
+
+  <!-- 캐릭터 선택 화면 -->
+  <div class="character-select" id="characterSelect" style="display: none;">
     <h3>캐릭터를 선택하세요!</h3>
     <div class="character-options">
       <div class="character-option" onclick="selectCharacter('😀')">😀</div>
@@ -512,11 +591,12 @@
   <script>
     const player = document.getElementById('player');
     const gameContainer = document.querySelector('.game-container');
-    const scoreElement = document.getElementById('score');
     const coinsElement = document.getElementById('coins');
-    const distanceElement = document.getElementById('distance');
+    const targetCoinsElement = document.getElementById('targetCoins');
+    const currentLevelElement = document.getElementById('currentLevel');
     const gameOverElement = document.getElementById('gameOver');
     const gameWinElement = document.getElementById('gameWin');
+    const levelSelectElement = document.getElementById('levelSelect');
     const characterSelectElement = document.getElementById('characterSelect');
     const startBtn = document.getElementById('startBtn');
     const pauseBtn = document.getElementById('pauseBtn');
@@ -524,11 +604,11 @@
     
     let selectedCharacter = '😀';
     let currentCharacter = '😀';
+    let selectedLevel = 1;
     let gameRunning = false;
     let gamePaused = false;
-    let score = 0;
     let coins = 0;
-    let distance = 0;
+    let targetCoins = 15;
     let playerY = 44;
     let isJumping = false;
     let jumpTimer = 0;
@@ -539,9 +619,15 @@
     let coinList = [];
     let animationId;
     
+    // 레벨 설정
+    const levelConfig = {
+      1: { speed: 3, targetCoins: 15, name: "1단계" },
+      2: { speed: 5, targetCoins: 15, name: "2단계" },
+      3: { speed: 4, targetCoins: 30, name: "3단계" }
+    };
+    
     // 효과음 재생 함수
     function playCoinSound() {
-      // Web Audio API를 사용한 효과음 생성
       const audioContext = new (window.AudioContext || window.webkitAudioContext)();
       const oscillator = audioContext.createOscillator();
       const gainNode = audioContext.createGain();
@@ -559,7 +645,7 @@
       oscillator.stop(audioContext.currentTime + 0.1);
     }
     
-    // 게임 승리 효과음 재생 함수 (빠방~!)
+    // 게임 승리 효과음 재생 함수
     function playWinSound() {
       const audioContext = new (window.AudioContext || window.webkitAudioContext)();
       const now = audioContext.currentTime;
@@ -568,20 +654,19 @@
       gainNode.gain.setValueAtTime(0.4, now);
       gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.8);
 
-      // '도-미-솔-도' 멜로디로 축하 느낌을 줍니다.
       const freqs = [261.63, 329.63, 392.00, 523.25];
       
       freqs.forEach((freq, i) => {
         const oscillator = audioContext.createOscillator();
         oscillator.connect(gainNode);
-        oscillator.type = 'triangle'; // 부드러운 게임 사운드
+        oscillator.type = 'triangle';
         oscillator.frequency.setValueAtTime(freq, now + i * 0.12);
         oscillator.start(now + i * 0.12);
         oscillator.stop(now + i * 0.12 + 0.15);
       });
     }
     
-    // 게임 오버 효과음 재생 함수 (띠리리딩~)
+    // 게임 오버 효과음 재생 함수
     function playGameOverSound() {
       const audioContext = new (window.AudioContext || window.webkitAudioContext)();
       const now = audioContext.currentTime;
@@ -590,17 +675,45 @@
       gainNode.gain.setValueAtTime(0.3, now);
       gainNode.gain.exponentialRampToValueAtTime(0.01, now + 1.0);
 
-      // 하강하는 멜로디로 아쉬운 느낌을 줍니다.
       const freqs = [392.00, 329.63, 261.63, 220.00];
       
       freqs.forEach((freq, i) => {
         const oscillator = audioContext.createOscillator();
         oscillator.connect(gainNode);
-        oscillator.type = 'sine'; // 부드러운 소리
+        oscillator.type = 'sine';
         oscillator.frequency.setValueAtTime(freq, now + i * 0.15);
         oscillator.start(now + i * 0.15);
         oscillator.stop(now + i * 0.15 + 0.2);
       });
+    }
+    
+    // 레벨 선택
+    function selectLevel(level) {
+      // 이전 선택 해제
+      document.querySelectorAll('.level-option').forEach(opt => {
+        opt.classList.remove('selected');
+      });
+      
+      // 현재 선택 표시
+      event.target.closest('.level-option').classList.add('selected');
+      
+      selectedLevel = level;
+      document.getElementById('levelConfirmBtn').disabled = false;
+    }
+    
+    // 레벨 확인
+    function confirmLevel() {
+      levelSelectElement.style.display = 'none';
+      characterSelectElement.style.display = 'block';
+      
+      // 레벨 설정 적용
+      const config = levelConfig[selectedLevel];
+      gameSpeed = config.speed;
+      targetCoins = config.targetCoins;
+      
+      // UI 업데이트
+      currentLevelElement.textContent = selectedLevel;
+      targetCoinsElement.textContent = targetCoins;
     }
     
     // 게임 시작
@@ -656,7 +769,7 @@
     function jump() {
       if (jumpCount < maxJumps && gameRunning && !gamePaused) {
         isJumping = true;
-        jumpTimer = 20; // 약 0.33초 (20프레임) - 점프 높이 증가
+        jumpTimer = 20;
         jumpCount++;
       }
     }
@@ -668,19 +781,19 @@
       // 플레이어 점프/낙하 시스템
       if (isJumping) {
         jumpTimer--;
-        playerY += 5; // 점프 중 위로 이동
+        playerY += 5;
         
         if (jumpTimer <= 0) {
           isJumping = false;
         }
       } else if (playerY > 44) {
-        playerY -= 8; // 중력으로 아래로 이동
+        playerY -= 8;
       }
       
       // 바닥 충돌 체크
       if (playerY <= 44) {
         playerY = 44;
-        jumpCount = 0; // 바닥에 닿으면 점프 카운트 리셋
+        jumpCount = 0;
       }
       
       // 플레이어 위치 업데이트
@@ -705,7 +818,6 @@
         if (obstacleX < -50) {
           obstacle.remove();
           obstacles.splice(index, 1);
-          score += 10;
         }
         
         // 충돌 감지
@@ -731,31 +843,18 @@
           coin.remove();
           coinList.splice(index, 1);
           coins++;
-          score += 50;
           coinsElement.textContent = coins;
           
           // 효과음 재생
           playCoinSound();
           
-          // 승리 조건 확인 (코인 15개 수집)
-          if (coins >= 15) {
+          // 승리 조건 확인
+          if (coins >= targetCoins) {
             gameWin();
             return;
           }
         }
       });
-      
-      // 거리 및 점수 업데이트
-      distance += gameSpeed / 10;
-      score += 1;
-      
-      scoreElement.textContent = score;
-      distanceElement.textContent = Math.floor(distance);
-      
-      // 게임 속도 증가 (더 천천히)
-      if (distance % 200 < gameSpeed) {
-        gameSpeed += 0.05;
-      }
       
       animationId = requestAnimationFrame(gameLoop);
     }
@@ -797,9 +896,13 @@
       cancelAnimationFrame(animationId);
       playGameOverSound();
       
-      document.getElementById('finalScore').textContent = score;
+      // 모든 코인 애니메이션 멈추기
+      const allCoins = document.querySelectorAll('.coin');
+      allCoins.forEach(coin => {
+        coin.classList.add('paused');
+      });
+      
       document.getElementById('finalCoins').textContent = coins;
-      document.getElementById('finalDistance').textContent = Math.floor(distance);
       
       gameOverElement.style.display = 'block';
       startBtn.style.display = 'none';
@@ -812,9 +915,13 @@
       cancelAnimationFrame(animationId);
       playWinSound();
       
-      document.getElementById('winScore').textContent = score;
+      // 모든 코인 애니메이션 멈추기
+      const allCoins = document.querySelectorAll('.coin');
+      allCoins.forEach(coin => {
+        coin.classList.add('paused');
+      });
+      
       document.getElementById('winCoins').textContent = coins;
-      document.getElementById('winDistance').textContent = Math.floor(distance);
       
       gameWinElement.style.display = 'block';
       startBtn.style.display = 'none';
@@ -931,12 +1038,6 @@
     
     // 게임 초기화
     function resetGame() {
-      doResetGame(); // 바로 초기화
-    }
-    
-    // 실제 초기화 함수 분리
-    function doResetGame() {
-      // 기존 resetGame 함수의 confirm 이후 코드 전부 여기에 옮김
       // 게임 상태 완전 중지
       gameRunning = false;
       gamePaused = false;
@@ -962,22 +1063,21 @@
       jumpCount = 0;
       
       // 게임 상태 완전 초기화
-      score = 0;
       coins = 0;
-      distance = 0;
       gameSpeed = 3;
       
       // UI 완전 초기화
-      scoreElement.textContent = '0';
       coinsElement.textContent = '0';
-      distanceElement.textContent = '0';
+      targetCoinsElement.textContent = '15';
+      currentLevelElement.textContent = '1';
       
       // 게임 오버/승리 화면 숨기기
       if (gameOverElement) gameOverElement.style.display = 'none';
       if (gameWinElement) gameWinElement.style.display = 'none';
       
-      // 캐릭터 선택 화면 표시
-      characterSelectElement.style.display = 'block';
+      // 레벨 선택 화면 표시
+      levelSelectElement.style.display = 'block';
+      characterSelectElement.style.display = 'none';
       
       // 캐릭터 정보 숨기기
       const characterInfo = document.getElementById('characterInfo');
@@ -994,6 +1094,11 @@
       
       pauseBtn.textContent = '일시정지';
       
+      // 레벨 선택 초기화
+      document.querySelectorAll('.level-option').forEach(opt => {
+        opt.classList.remove('selected');
+      });
+      
       // 캐릭터 선택 초기화
       document.querySelectorAll('.character-option').forEach(opt => {
         opt.classList.remove('selected');
@@ -1002,6 +1107,7 @@
       // 캐릭터 기본값으로 초기화
       selectedCharacter = '😀';
       currentCharacter = '😀';
+      selectedLevel = 1;
       player.style.setProperty('--player-emoji', '"😀"');
       
       // 유니콘 반전 클래스 제거
@@ -1011,11 +1117,13 @@
       changeBackground('😀');
       
       // 확인 버튼 비활성화
+      const levelConfirmBtn = document.getElementById('levelConfirmBtn');
       const confirmBtn = document.getElementById('confirmBtn');
+      if (levelConfirmBtn) levelConfirmBtn.disabled = true;
       if (confirmBtn) confirmBtn.disabled = true;
       
       // 성공 메시지 표시
-      alert('게임이 성공적으로 초기화되었습니다! 🎮\n\n캐릭터를 다시 선택하고 게임을 시작하세요.');
+      alert('게임이 성공적으로 초기화되었습니다! 🎮\n\n레벨을 다시 선택하고 게임을 시작하세요.');
     }
     
     // 배경 변경 함수
@@ -1089,19 +1197,6 @@
       window.currentObstacleClass = obstacleClass;
       window.currentCoinClass = coinClass;
     }
-    
-    // 점수 업데이트
-    function updateScore() {
-      scoreElement.textContent = score;
-    }
-    
-    // 코인 업데이트
-    function updateCoins() {
-      coinsElement.textContent = coins;
-    }
   </script>
 </body>
-</html> 
-
-
-
+</html>
